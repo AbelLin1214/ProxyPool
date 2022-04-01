@@ -68,7 +68,7 @@ GET_TIMEOUT = env.int('GET_TIMEOUT', 10)
 
 # definition of tester
 TEST_URL = env.str('TEST_URL', 'http://www.baidu.com')
-TEST_TIMEOUT = env.int('TEST_TIMEOUT', 10)
+TEST_TIMEOUT = env.int('TEST_TIMEOUT', 1)
 TEST_BATCH = env.int('TEST_BATCH', 20)
 # only save anonymous proxy
 TEST_ANONYMOUS = env.bool('TEST_ANONYMOUS', True)

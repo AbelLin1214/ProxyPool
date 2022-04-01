@@ -1,3 +1,11 @@
+'''
+Author: Abel
+Date: 2022-04-01 09:51:33
+LastEditTime: 2022-04-01 14:28:56
+LastEditors: Abel
+Description: ...
+FilePath: /ProxyPool/proxypool/processors/tester.py
+'''
 import asyncio
 import aiohttp
 from loguru import logger
@@ -46,10 +54,10 @@ class Tester(object):
                     url = 'https://httpbin.org/ip'
                     async with session.get(url, timeout=TEST_TIMEOUT) as response:
                         resp_json = await response.json()
-                        origin_ip = resp_json['origin']
+                        origin_ip = resp_json['origin'].split(',')[0]
                     async with session.get(url, proxy=f'http://{proxy.string()}', timeout=TEST_TIMEOUT) as response:
                         resp_json = await response.json()
-                        anonymous_ip = resp_json['origin']
+                        anonymous_ip = resp_json['origin'].split(',')[0]
                     assert origin_ip != anonymous_ip
                     assert proxy.host == anonymous_ip
                 async with session.get(TEST_URL, proxy=f'http://{proxy.string()}', timeout=TEST_TIMEOUT,
