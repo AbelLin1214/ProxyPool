@@ -70,21 +70,27 @@ class RedisClient(object):
         # else raise error
         raise PoolEmptyException
 
-    def decrease(self, proxy: Proxy) -> int:
+    def decrease(self, proxy: Proxy, _s: int=1) -> int:
         """
         decrease score of proxy, if small than PROXY_SCORE_MIN, delete it
         :param proxy: proxy
         :return: new score
         """
         if IS_REDIS_VERSION_2:
-            self.db.zincrby(REDIS_KEY, proxy.string(), -1)
+            self.db.zincrby(REDIS_KEY, proxy.string(), -_s)
         else:
-            self.db.zincrby(REDIS_KEY, -1, proxy.string())
+            self.db.zincrby(REDIS_KEY, -_s, proxy.string())
         score = self.db.zscore(REDIS_KEY, proxy.string())
-        logger.info(f'{proxy.string()} score decrease 1, current {score}')
+        logger.info(f'{proxy.string()} score decrease {_s}, current {score}')
         if score <= PROXY_SCORE_MIN:
             logger.info(f'{proxy.string()} current score {score}, remove')
             self.db.zrem(REDIS_KEY, proxy.string())
+    
+    def remove(self, proxy: Proxy) -> None:
+        '''remove proxy'''
+        score = self.db.zscore(REDIS_KEY, proxy.string())
+        logger.warning(f'{proxy.string()} current score {score}, remove')
+        self.db.zrem(REDIS_KEY, proxy.string())
 
     def exists(self, proxy: Proxy) -> bool:
         """
@@ -94,16 +100,18 @@ class RedisClient(object):
         """
         return not self.db.zscore(REDIS_KEY, proxy.string()) is None
 
-    def max(self, proxy: Proxy) -> int:
+    def increase(self, proxy: Proxy, _s: int=1):
         """
         set proxy to max score
         :param proxy: proxy
         :return: new score
         """
-        logger.info(f'{proxy.string()} is valid, set to {PROXY_SCORE_MAX}')
         if IS_REDIS_VERSION_2:
-            return self.db.zadd(REDIS_KEY, PROXY_SCORE_MAX, proxy.string())
-        return self.db.zadd(REDIS_KEY, {proxy.string(): PROXY_SCORE_MAX})
+            self.db.zincrby(REDIS_KEY, proxy.string(), +_s)
+        else:
+            self.db.zincrby(REDIS_KEY, +_s, proxy.string())
+        score = self.db.zscore(REDIS_KEY, proxy.string())
+        logger.info(f'{proxy.string()} score increase {_s}, current {score}')
 
     def count(self) -> int:
         """

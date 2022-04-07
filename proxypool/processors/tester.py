@@ -1,10 +1,10 @@
 '''
 Author: Abel
 Date: 2022-04-01 09:51:33
-LastEditTime: 2022-04-01 14:28:56
+LastEditTime: 2022-04-07 14:09:29
 LastEditors: Abel
 Description: ...
-FilePath: /ProxyPool/proxypool/processors/tester.py
+FilePath: /proxy_pool/ProxyPool/proxypool/processors/tester.py
 '''
 import asyncio
 import aiohttp
@@ -58,13 +58,16 @@ class Tester(object):
                     async with session.get(url, proxy=f'http://{proxy.string()}', timeout=TEST_TIMEOUT) as response:
                         resp_json = await response.json()
                         anonymous_ip = resp_json['origin'].split(',')[0]
+                    if origin_ip == anonymous_ip:  # 如果不是匿名代理，则删除该代理
+                        logger.warning(f'proxy {proxy.string()} is not anonymous, remove')
+                        self.redis.remove(proxy)
                     assert origin_ip != anonymous_ip
                     assert proxy.host == anonymous_ip
                 async with session.get(TEST_URL, proxy=f'http://{proxy.string()}', timeout=TEST_TIMEOUT,
                                        allow_redirects=False) as response:
                     if response.status in TEST_VALID_STATUS:
-                        self.redis.max(proxy)
-                        logger.debug(f'proxy {proxy.string()} is valid, set max score')
+                        self.redis.increase(proxy)
+                        logger.debug(f'proxy {proxy.string()} is valid, increase score')
                     else:
                         self.redis.decrease(proxy)
                         logger.debug(f'proxy {proxy.string()} is invalid, decrease score')
@@ -79,7 +82,7 @@ class Tester(object):
         :return:
         """
         # event loop of aiohttp
-        logger.info('stating tester...')
+        logger.info('starting tester...')
         count = self.redis.count()
         logger.debug(f'{count} proxies to test')
         cursor = 0
