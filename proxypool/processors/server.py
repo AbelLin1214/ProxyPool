@@ -1,6 +1,6 @@
 from flask import Flask, g
 from proxypool.storages.redis import RedisClient
-from proxypool.setting import API_HOST, API_PORT, API_THREADED, IS_DEV
+from proxypool.setting import API_HOST, API_PORT, API_THREADED, IS_DEV, REDIS_KEY
 
 
 __all__ = ['app']
@@ -52,6 +52,20 @@ def get_proxy_all():
         for proxy in proxies:
             proxies_string += str(proxy) + '\n'
 
+    return proxies_string
+
+@app.route('/all?score=1')
+def get_proxy_all_with_score():
+    """
+    get a random proxy
+    :return: get a random proxy
+    """
+    conn = get_conn()
+    proxies = conn.all()
+    proxies_string = ''
+    if proxies:
+        for proxy in proxies:
+            proxies_string += f"{str(proxy)}|{conn.db.zscore(REDIS_KEY, proxy.string())} + '\n\r'"
     return proxies_string
 
 

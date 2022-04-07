@@ -2,7 +2,7 @@ import redis
 from proxypool.exceptions import PoolEmptyException
 from proxypool.schemas.proxy import Proxy
 from proxypool.setting import REDIS_CONNECTION_STRING, REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, REDIS_DB, REDIS_KEY, PROXY_SCORE_MAX, PROXY_SCORE_MIN, \
-    PROXY_SCORE_INIT
+    PROXY_SCORE_INIT, PROXY_SCORE_INVALID
 from random import choice
 from typing import List
 from loguru import logger
@@ -86,11 +86,16 @@ class RedisClient(object):
             logger.info(f'{proxy.string()} current score {score}, remove')
             self.db.zrem(REDIS_KEY, proxy.string())
     
-    def remove(self, proxy: Proxy) -> None:
-        '''remove proxy'''
-        score = self.db.zscore(REDIS_KEY, proxy.string())
-        logger.warning(f'{proxy.string()} current score {score}, remove')
-        self.db.zrem(REDIS_KEY, proxy.string())
+    def minimum(self, proxy: Proxy) -> int:
+        '''
+        set proxy to minimum score
+        :param proxy: proxy
+        :return: new score
+        '''
+        logger.info(f'{proxy.string()} is invalid, set to {PROXY_SCORE_INVALID}')
+        if IS_REDIS_VERSION_2:
+            return self.db.zadd(REDIS_KEY, PROXY_SCORE_INVALID, proxy.string())
+        return self.db.zadd(REDIS_KEY, {proxy.string(): PROXY_SCORE_INVALID})
 
     def exists(self, proxy: Proxy) -> bool:
         """
@@ -99,6 +104,17 @@ class RedisClient(object):
         :return: if exists, bool
         """
         return not self.db.zscore(REDIS_KEY, proxy.string()) is None
+
+    def max(self, proxy: Proxy) -> int:
+        """
+        set proxy to max score
+        :param proxy: proxy
+        :return: new score
+        """
+        logger.info(f'{proxy.string()} is valid, set to {PROXY_SCORE_MAX}')
+        if IS_REDIS_VERSION_2:
+            return self.db.zadd(REDIS_KEY, PROXY_SCORE_MAX, proxy.string())
+        return self.db.zadd(REDIS_KEY, {proxy.string(): PROXY_SCORE_MAX})
 
     def increase(self, proxy: Proxy, _s: int=1):
         """

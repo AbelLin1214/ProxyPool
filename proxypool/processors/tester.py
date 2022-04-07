@@ -1,7 +1,7 @@
 '''
 Author: Abel
 Date: 2022-04-01 09:51:33
-LastEditTime: 2022-04-07 14:09:29
+LastEditTime: 2022-04-07 16:16:56
 LastEditors: Abel
 Description: ...
 FilePath: /proxy_pool/ProxyPool/proxypool/processors/tester.py
@@ -58,9 +58,10 @@ class Tester(object):
                     async with session.get(url, proxy=f'http://{proxy.string()}', timeout=TEST_TIMEOUT) as response:
                         resp_json = await response.json()
                         anonymous_ip = resp_json['origin'].split(',')[0]
-                    if origin_ip == anonymous_ip:  # 如果不是匿名代理，则删除该代理
-                        logger.warning(f'proxy {proxy.string()} is not anonymous, remove')
-                        self.redis.remove(proxy)
+                    if origin_ip == anonymous_ip:  # 如果不是匿名代理，则分数直接降为-1
+                        _score = self.redis.minimum(proxy)
+                        logger.warning(f'proxy {proxy.string()} is not anonymous, set {_score}')
+
                     assert origin_ip != anonymous_ip
                     assert proxy.host == anonymous_ip
                 async with session.get(TEST_URL, proxy=f'http://{proxy.string()}', timeout=TEST_TIMEOUT,
