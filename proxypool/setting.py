@@ -54,6 +54,7 @@ REDIS_KEY = env.str('PROXYPOOL_REDIS_KEY', env.str(
 # definition of proxy scores
 PROXY_SCORE_MAX = 100
 PROXY_SCORE_MIN = 0
+PROXY_SCORE_INVALID = -1
 PROXY_SCORE_INIT = 10
 
 # definition of proxy number
