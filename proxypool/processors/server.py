@@ -1,3 +1,11 @@
+'''
+Author: Abel
+Date: 2022-04-01 09:51:33
+LastEditTime: 2022-04-07 17:01:53
+LastEditors: Abel
+Description: ...
+FilePath: /proxy_pool/ProxyPool/proxypool/processors/server.py
+'''
 from flask import Flask, g
 from proxypool.storages.redis import RedisClient
 from proxypool.setting import API_HOST, API_PORT, API_THREADED, IS_DEV, REDIS_KEY
@@ -54,7 +62,7 @@ def get_proxy_all():
 
     return proxies_string
 
-@app.route('/all_with_score')
+@app.route('/get')
 def get_proxy_all_with_score():
     """
     get a random proxy

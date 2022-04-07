@@ -1,7 +1,7 @@
 '''
 Author: Abel
 Date: 2022-04-01 09:51:33
-LastEditTime: 2022-04-07 16:25:44
+LastEditTime: 2022-04-07 17:03:24
 LastEditors: Abel
 Description: ...
 FilePath: /proxy_pool/ProxyPool/proxypool/processors/tester.py
@@ -50,6 +50,7 @@ class Tester(object):
                 logger.debug(f'testing {proxy.string()}')
                 # if TEST_ANONYMOUS is True, make sure that
                 # the proxy has the effect of hiding the real IP
+                logger.error(f'now TEST_ANONYMOUS is : {TEST_ANONYMOUS}')
                 if TEST_ANONYMOUS:
                     url = 'https://httpbin.org/ip'
                     async with session.get(url, timeout=TEST_TIMEOUT) as response:

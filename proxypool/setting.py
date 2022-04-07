@@ -73,9 +73,9 @@ TEST_TIMEOUT = env.int('TEST_TIMEOUT', 1)
 TEST_BATCH = env.int('TEST_BATCH', 20)
 # only save anonymous proxy
 TEST_ANONYMOUS = env.bool('TEST_ANONYMOUS', True)
-# TEST_HEADERS = env.json('TEST_HEADERS', {
-#     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36',
-# })
+TEST_HEADERS = env.json('TEST_HEADERS', {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36',
+})
 TEST_VALID_STATUS = env.list('TEST_VALID_STATUS', [200, 206, 302])
 
 # definition of api
