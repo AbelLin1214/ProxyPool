@@ -54,7 +54,7 @@ def get_proxy_all():
 
     return proxies_string
 
-@app.route('/all?score=1')
+@app.route('/all_with_score')
 def get_proxy_all_with_score():
     """
     get a random proxy
